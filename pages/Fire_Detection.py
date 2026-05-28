@@ -464,6 +464,7 @@ if 'stats' not in st.session_state:
 # ============================================
 def predict_image(image_bytes):
     try:
+        print("PREDICT_ENDPOINT:-", PREDICT_ENDPOINT)
         files = {'file': ('image.jpg', image_bytes, 'image/jpeg')}
         response = requests.post(PREDICT_ENDPOINT, files=files, timeout=30)
         if response.status_code == 200:
@@ -730,6 +731,7 @@ def settings_page():
     st.subheader("⚙️ Settings")
     st.markdown(f"**API URL:** `{API_URL}`")
     try:
+        print("THRESHOLDS_ENDPOINT:- ", THRESHOLDS_ENDPOINT)
         r = requests.get(THRESHOLDS_ENDPOINT, timeout=2)
         if r.status_code == 200:
             t = r.json()
@@ -763,6 +765,7 @@ def main():
     if check_api_health():
         st.sidebar.success("✅ Connected")
         try:
+            print("HEALTH_ENDPOINT:- ", HEALTH_ENDPOINT)
             info = requests.get(HEALTH_ENDPOINT).json()
             st.sidebar.info(f"Device: {info.get('device','unknown')}")
         except:
