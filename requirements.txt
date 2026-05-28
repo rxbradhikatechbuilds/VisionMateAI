@@ -4,3 +4,5 @@ ultralytics
 streamlit
 protobuf==3.20.3
 mediapipe==0.10.11
+opencv-python-headless
+requests
