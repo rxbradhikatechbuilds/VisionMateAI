@@ -445,7 +445,8 @@ st.set_page_config(
 # ============================================
 # CONFIGURATION (unchanged)
 # ============================================
-API_URL = "http://localhost:8000"
+# API_URL = "http://localhost:8000"
+API_URL = "https://visionmateai-1.onrender.com/"
 PREDICT_ENDPOINT = f"{API_URL}/predict"
 HEALTH_ENDPOINT = f"{API_URL}/health"
 THRESHOLDS_ENDPOINT = f"{API_URL}/thresholds"
