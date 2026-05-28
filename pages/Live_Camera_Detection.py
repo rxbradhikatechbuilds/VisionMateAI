@@ -410,9 +410,9 @@ apply_global_style()
 # ============================================
 BASE_DIR = Path(__file__).parent
 possible_model_paths = [
-    BASE_DIR / "runs/detect/output/exp1/weights/best.pt",
-    BASE_DIR / "output/exp1/weights/best.pt",
-    Path("best.pt"),
+    BASE_DIR / "E:/FinalvisionMateAi-V2/FinalvisionMateAi-V2/pages/models/best.pt",
+    BASE_DIR / "E:/FinalvisionMateAi-V2/FinalvisionMateAi-V2/pages/models/best.pt",
+    Path("E:/FinalvisionMateAi-V2/FinalvisionMateAi-V2/pages/models/best.pt"),
 ]
 
 MODEL_PATH = None

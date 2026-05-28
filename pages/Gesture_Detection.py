@@ -176,7 +176,7 @@ init_db()
 # ============================================
 # MEDIAPIPE SETUP (unchanged)
 # ============================================
-model_path = 'E:\\AI Project PUSSGRC\\FinalvisionMateAi\\pages\\models\\gesture_recognizer.task'   # Update to your actual path
+model_path = 'E:\\FinalvisionMateAi-V2\\FinalvisionMateAi-V2\\pages\\models\\gesture_recognizer.task'   # Update to your actual path
 if not os.path.exists(model_path):
     st.error("Model file 'gesture_recognizer.task' not found.")
     st.stop()

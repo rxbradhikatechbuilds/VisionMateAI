@@ -62,7 +62,7 @@ def get_camera_source():
         return 1
     else:
         # DroidCam HTTP stream URL (default port 4747)
-        return f"http://192.168.1.22:4747/video"
+        return f"http://192.168.1.21:4747/video"
 
 def open_camera(source, width=320, height=240):
     """
