@@ -428,9 +428,9 @@ warnings.filterwarnings('ignore')
 
 from utils import apply_global_style
 from camera_utils import get_camera_source, open_camera, preprocess_frame, release_camera
-from streamlit_webrtc import webrtc_streamer
+# from streamlit_webrtc import webrtc_streamer
 
-webrtc_streamer(key="camera")
+# webrtc_streamer(key="camera")
 
 # Apply adaptive theme logic
 apply_global_style()

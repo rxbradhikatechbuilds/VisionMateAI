@@ -138,9 +138,9 @@ from datetime import datetime
 from queue import Queue
 from utils import apply_global_style
 from camera_utils import get_camera_source, open_camera, preprocess_frame, release_camera
-from streamlit_webrtc import webrtc_streamer
+# from streamlit_webrtc import webrtc_streamer
 
-webrtc_streamer(key="camera")
+# webrtc_streamer(key="camera")
 
 # ============================================
 # PAGE CONFIG & ATTRACTIVE DARK THEME (Soft, readable)
