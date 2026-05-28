@@ -446,7 +446,7 @@ st.set_page_config(
 # CONFIGURATION (unchanged)
 # ============================================
 # API_URL = "http://localhost:8000"
-API_URL = "https://visionmateai-1.onrender.com/"
+API_URL = "https://visionmateai-1.onrender.com"
 PREDICT_ENDPOINT = f"{API_URL}/predict"
 HEALTH_ENDPOINT = f"{API_URL}/health"
 THRESHOLDS_ENDPOINT = f"{API_URL}/thresholds"
@@ -731,7 +731,7 @@ def settings_page():
     st.subheader("⚙️ Settings")
     st.markdown(f"**API URL:** `{API_URL}`")
     try:
-        print("THRESHOLDS_ENDPOINT:- ", THRESHOLDS_ENDPOINT)
+        print("THRESHOLDS_ENDPOINT:- ", )
         r = requests.get(THRESHOLDS_ENDPOINT, timeout=2)
         if r.status_code == 200:
             t = r.json()
