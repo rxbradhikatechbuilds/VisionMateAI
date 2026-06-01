@@ -552,7 +552,7 @@ st.markdown("""
 # ============================================
 # CONFIGURATION
 # ============================================
-API_URL = "http://localhost:8000"
+API_URL = "%https://visionmateai-1.onrender.com\docs"
 PREDICT_ENDPOINT = f"{API_URL}/predict"
 HEALTH_ENDPOINT = f"{API_URL}/health"
 THRESHOLDS_ENDPOINT = f"{API_URL}/thresholds"
