@@ -10,3 +10,4 @@ plotly
 numpy
 Pillow
 requests
+opencv-python-headless 
