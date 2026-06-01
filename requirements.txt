@@ -1,7 +1,12 @@
-fastapi 
+fastapi
 uvicorn
 ultralytics
-mediapipe
 streamlit
 protobuf==3.20.3
 mediapipe==0.10.11
+opencv-python
+pandas
+plotly
+numpy
+Pillow
+requests
