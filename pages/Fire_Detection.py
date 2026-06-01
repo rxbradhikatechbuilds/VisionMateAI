@@ -12,8 +12,10 @@
 # import warnings
 # warnings.filterwarnings('ignore')
 
+# from camera_utils import get_camera_source, open_camera, preprocess_frame, release_camera
+
 # # ============================================
-# # PAGE CONFIG & GLOBAL STYLE (Dark Theme)
+# # PAGE CONFIG & ATTRACTIVE DARK THEME (Soft, readable)
 # # ============================================
 # st.set_page_config(
 #     page_title="Fire Detection System",
@@ -22,35 +24,89 @@
 #     initial_sidebar_state="expanded"
 # )
 
-# def apply_global_style():
-#     st.markdown("""
-#     <style>
-#         .stApp { background-color: #0a0a0a; }
-#         .css-1d391kg, .css-12oz5g7 { background-color: #1e1e1e; }
-#         [data-testid="stMetricValue"] { color: #ff4444 !important; font-size: 2rem !important; }
-#         [data-testid="stMetricLabel"] { color: #cccccc !important; }
-#         h1, h2, h3, .stMarkdown { color: #ffffff !important; }
-#         .stButton > button {
-#             background-color: #333333; color: white; border-radius: 8px;
-#             border: 1px solid #ff4444; transition: 0.3s;
-#         }
-#         .stButton > button:hover { background-color: #ff4444; color: black; border-color: white; }
-#         .stAlert { border-radius: 10px; }
-#         .dataframe { background-color: #1e1e1e !important; color: white !important; }
-#     </style>
-#     """, unsafe_allow_html=True)
-
-# apply_global_style()
+# st.markdown("""
+# <style>
+#     /* Base background - soft dark */
+#     .stApp {
+#         background: linear-gradient(135deg, #1a1c2e 0%, #1e2035 100%);
+#     }
+#     /* Sidebar */
+#     .css-1d391kg, .css-12oz5g7 {
+#         background-color: #151728;
+#         border-right: 1px solid #2c2f42;
+#     }
+#     /* Headers */
+#     h1, h2, h3, .stMarkdown {
+#         color: #eef2ff !important;
+#     }
+#     /* Metric boxes */
+#     [data-testid="stMetricValue"] {
+#         color: #ff6b6b !important;
+#         font-size: 2rem !important;
+#     }
+#     [data-testid="stMetricLabel"] {
+#         color: #cbd5ff !important;
+#     }
+#     /* Section cards */
+#     .section-card {
+#         background-color: #23263b;
+#         border-radius: 24px;
+#         padding: 1.5rem;
+#         margin-bottom: 2rem;
+#         box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+#         border: 1px solid #2c2f42;
+#     }
+#     /* Camera container */
+#     .camera-container {
+#         background-color: #0f111d;
+#         border-radius: 24px;
+#         padding: 10px;
+#         border: 2px solid #ff4444;
+#         box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+#     }
+#     /* Buttons */
+#     .stButton > button {
+#         background-color: #ff4444;
+#         color: white;
+#         border-radius: 12px;
+#         border: none;
+#         font-weight: 600;
+#         transition: 0.2s;
+#     }
+#     .stButton > button:hover {
+#         background-color: #ff2222;
+#         transform: scale(1.02);
+#     }
+#     /* Dataframe */
+#     .dataframe {
+#         background-color: #1e2137 !important;
+#         color: #eef2ff !important;
+#     }
+#     /* Info/Warning boxes */
+#     .stAlert {
+#         background-color: #23263b !important;
+#         color: #eef2ff !important;
+#         border-left: 4px solid #ff4444 !important;
+#     }
+#     /* Plotly charts background */
+#     .js-plotly-plot .plotly .bg {
+#         fill: #23263b !important;
+#     }
+#     /* Sliders, selectboxes */
+#     .stSelectbox label, .stSlider label {
+#         color: #eef2ff !important;
+#     }
+# </style>
+# """, unsafe_allow_html=True)
 
 # # ============================================
-# # CONFIGURATION
+# # CONFIGURATION (unchanged)
 # # ============================================
 # API_URL = "http://localhost:8000"
 # PREDICT_ENDPOINT = f"{API_URL}/predict"
 # HEALTH_ENDPOINT = f"{API_URL}/health"
 # THRESHOLDS_ENDPOINT = f"{API_URL}/thresholds"
 
-# # Session state initialization
 # if 'detection_history' not in st.session_state:
 #     st.session_state.detection_history = []
 # if 'stats' not in st.session_state:
@@ -60,21 +116,19 @@
 #     }
 
 # # ============================================
-# # HELPER FUNCTIONS
+# # HELPER FUNCTIONS (unchanged)
 # # ============================================
 # def predict_image(image_bytes):
-#     """Send image to FastAPI and return result"""
 #     try:
 #         files = {'file': ('image.jpg', image_bytes, 'image/jpeg')}
 #         response = requests.post(PREDICT_ENDPOINT, files=files, timeout=30)
 #         if response.status_code == 200:
 #             return response.json()
-#     except Exception:
+#     except:
 #         pass
 #     return None
 
 # def draw_detections(frame, detections):
-#     """Draw bounding boxes (red=high, orange=medium, yellow=low)"""
 #     if not detections:
 #         return frame
 #     for det in detections:
@@ -85,23 +139,21 @@
 #         color = (0, 0, 255) if conf > 0.7 else (0, 165, 255) if conf > 0.4 else (0, 255, 255)
 #         cv2.rectangle(frame, (x1, y1), (x2, y2), color, 2)
 #         label = f"{class_name}: {conf*100:.1f}%"
-#         cv2.rectangle(frame, (x1, y1-25), (x1+len(label)*10, y1), color, -1)
-#         cv2.putText(frame, label, (x1, y1-5), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255,255,255), 2)
+#         if y1 > 25:
+#             cv2.putText(frame, label, (x1, y1-5), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255,255,255), 1)
+#         else:
+#             cv2.putText(frame, label, (x1, y1+15), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255,255,255), 1)
 #     return frame
 
 # def update_statistics(result):
-#     """Update session stats and history"""
 #     status = result.get('status')
 #     confidence = result.get('max_confidence', 0)
 #     processing_time = result.get('processing_time_ms', 0)
-    
 #     st.session_state.stats['total_detections'] += 1
 #     st.session_state.stats[status] = st.session_state.stats.get(status, 0) + 1
 #     st.session_state.stats['total_processing_time'] += processing_time
-    
 #     total_conf = st.session_state.stats['avg_confidence'] * (st.session_state.stats['total_detections'] - 1)
 #     st.session_state.stats['avg_confidence'] = (total_conf + confidence) / st.session_state.stats['total_detections']
-    
 #     st.session_state.detection_history.append({
 #         'timestamp': datetime.now(), 'status': status, 'confidence': confidence,
 #         'processing_time': processing_time, 'num_detections': result.get('num_detections', 0)
@@ -117,120 +169,108 @@
 #         return False
 
 # # ============================================
-# # PAGE: LIVE CAMERA (FIXED - NO THREADING)
+# # LIVE CAMERA PAGE (theme only)
 # # ============================================
 # def live_camera_page():
-#     st.markdown("## 🎥 Live Camera Fire Detection")
+#     st.markdown('<div class="section-card">', unsafe_allow_html=True)
+#     st.subheader("🎥 Live Camera Fire Detection (Fast Mode)")
     
 #     if not check_api_health():
 #         st.error("❌ API is not reachable. Please start the backend: `python app.py`")
 #         return
     
-#     # Camera settings
+#     camera_source = get_camera_source()
+    
 #     col1, col2, col3 = st.columns(3)
 #     with col1:
-#         camera_source = st.selectbox("Camera Source", ["0 (Built-in)", "1 (External)", "2 (USB)"])
-#         camera_id = int(camera_source.split()[0])
+#         resolution = st.selectbox("Resolution (lower = faster)", 
+#                                   ["Very Low (160x120)", "Low (320x240)", "Medium (480x360)"])
+#         if resolution == "Very Low (160x120)":
+#             w, h = 160, 120
+#         elif resolution == "Low (320x240)":
+#             w, h = 320, 240
+#         else:
+#             w, h = 480, 360
 #     with col2:
-#         resolution = st.selectbox("Resolution", ["Low (320x240)", "Medium (640x480)"])
-#         w, h = (320, 240) if "Low" in resolution else (640, 480)
+#         process_every_n = st.slider("Process every N frames (higher = faster)", 1, 15, 5)
 #     with col3:
-#         process_every_n = st.slider("Process every N frames", 1, 10, 3,
-#                                     help="Higher = faster but less accurate")
+#         draw_boxes = st.checkbox("Draw detection boxes", value=True)
+#         jpeg_quality = st.slider("JPEG Quality (lower = faster upload)", 30, 95, 70, step=5)
     
-#     run_stream = st.checkbox("🔄 START CAMERA", value=False)
+#     run_stream = st.checkbox("🔄 START CAMERA (Fast Mode)", value=False)
     
-#     # Placeholders for dynamic content
 #     frame_placeholder = st.empty()
 #     metrics_placeholder = st.empty()
 #     status_placeholder = st.empty()
     
 #     if run_stream:
-#         # Open camera
-#         cap = cv2.VideoCapture(camera_id)
-#         if not cap.isOpened():
-#             st.error(f"Could not open camera {camera_id}. Try a different source.")
+#         cap = open_camera(camera_source, w, h)
+#         if cap is None:
+#             st.error(f"Could not open camera source: {camera_source}")
 #             return
         
-#         # Set resolution
-#         cap.set(cv2.CAP_PROP_FRAME_WIDTH, w)
-#         cap.set(cv2.CAP_PROP_FRAME_HEIGHT, h)
-        
+#         st.success(f"Camera opened at {w}x{h}. Streaming...")
 #         frame_count = 0
-#         st.success(f"Camera {camera_id} opened. Streaming...")
-        
 #         try:
 #             while run_stream:
 #                 ret, frame = cap.read()
 #                 if not ret:
 #                     time.sleep(0.02)
 #                     continue
-                
+#                 frame = preprocess_frame(frame, camera_source, w, h)
 #                 frame_count += 1
                 
-#                 # Process every N frames
 #                 if frame_count % process_every_n == 0:
-#                     # Encode and send to API
-#                     _, buffer = cv2.imencode('.jpg', frame)
+#                     encode_params = [cv2.IMWRITE_JPEG_QUALITY, jpeg_quality]
+#                     _, buffer = cv2.imencode('.jpg', frame, encode_params)
 #                     result = predict_image(buffer.tobytes())
                     
 #                     if result:
 #                         update_statistics(result)
-#                         # Draw detections
-#                         if result.get('detections'):
+#                         if draw_boxes and result.get('detections'):
 #                             frame = draw_detections(frame, result['detections'])
                         
-#                         # Update metrics display
 #                         with metrics_placeholder.container():
 #                             col1, col2, col3, col4 = st.columns(4)
-#                             with col1:
-#                                 st.metric("Status", result['status'].replace('_', ' ').title())
-#                             with col2:
-#                                 conf = result['max_confidence'] * 100
-#                                 st.metric("Confidence", f"{conf:.1f}%")
-#                             with col3:
-#                                 st.metric("Detections", result['num_detections'])
-#                             with col4:
-#                                 st.metric("API Time", f"{result['processing_time_ms']:.0f}ms")
+#                             col1.metric("Status", result['status'].replace('_', ' ').title())
+#                             conf = result['max_confidence'] * 100
+#                             col2.metric("Confidence", f"{conf:.1f}%")
+#                             col3.metric("Detections", result['num_detections'])
+#                             col4.metric("API Time", f"{result['processing_time_ms']:.0f}ms")
                         
-#                         # Alert messages
 #                         if result['status'] == 'fire_detected':
 #                             status_placeholder.error(f"🚨 FIRE DETECTED! Confidence: {conf:.1f}%")
 #                         elif result['status'] == 'uncertain':
-#                             status_placeholder.warning(f"⚠️ Possible Fire: {conf:.1f}% confidence")
+#                             status_placeholder.warning(f"⚠️ Possible Fire: {conf:.1f}%")
 #                         else:
 #                             status_placeholder.success("✅ No Fire Detected")
 #                     else:
 #                         status_placeholder.error("API not responding")
                 
-#                 # Show the frame (with or without boxes)
 #                 frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 #                 frame_placeholder.image(frame_rgb, channels="RGB", use_container_width=True)
-                
-#                 time.sleep(0.033)  # ~30 fps
 #         except Exception as e:
 #             st.error(f"Stream error: {e}")
 #         finally:
-#             cap.release()
+#             release_camera(cap)
 #             frame_placeholder.empty()
 #             metrics_placeholder.empty()
 #             status_placeholder.empty()
 #             st.info("Camera stopped.")
 #     else:
-#         st.info("Press START CAMERA to begin real-time detection.")
+#         st.info("Press START CAMERA to begin real-time detection (fast mode).")
+#     st.markdown('</div>', unsafe_allow_html=True)
 
 # # ============================================
-# # PAGE: IMAGE UPLOAD
+# # IMAGE UPLOAD PAGE (unchanged)
 # # ============================================
 # def image_upload_page():
-#     st.markdown("## 📤 Image Upload Detection")
-    
+#     st.markdown('<div class="section-card">', unsafe_allow_html=True)
+#     st.subheader("📤 Image Upload Detection")
 #     if not check_api_health():
 #         st.error("❌ API not reachable. Start backend first.")
 #         return
-    
 #     uploaded_files = st.file_uploader("Choose images...", type=['jpg','jpeg','png','bmp'], accept_multiple_files=True)
-    
 #     if uploaded_files:
 #         col1, col2 = st.columns([2,1])
 #         with col1:
@@ -246,11 +286,11 @@
 #                         update_statistics(result)
 #                         st.markdown("### Results")
 #                         if result['status'] == 'fire_detected':
-#                             st.error(f"🔥 FIRE DETECTED!")
+#                             st.error("🔥 FIRE DETECTED!")
 #                         elif result['status'] == 'uncertain':
-#                             st.warning(f"⚠️ Possible Fire")
+#                             st.warning("⚠️ Possible Fire")
 #                         else:
-#                             st.success(f"✅ No Fire")
+#                             st.success("✅ No Fire")
 #                         c1,c2,c3 = st.columns(3)
 #                         c1.metric("Confidence", f"{result['max_confidence']*100:.1f}%")
 #                         c2.metric("Detections", result['num_detections'])
@@ -259,7 +299,6 @@
 #                             st.write("**Detections:**")
 #                             for d in result['detections']:
 #                                 st.write(f"- {d['class_name']}: {d['confidence']*100:.1f}%")
-        
 #         if st.button("Process All Images", use_container_width=True):
 #             with st.spinner(f"Processing {len(uploaded_files)} images..."):
 #                 for f in uploaded_files:
@@ -268,20 +307,19 @@
 #                         update_statistics(r)
 #                 st.success("All images processed!")
 #                 st.rerun()
+#     st.markdown('</div>', unsafe_allow_html=True)
 
 # # ============================================
-# # PAGE: DASHBOARD & EXPORTS
+# # DASHBOARD PAGE (with dark-themed charts)
 # # ============================================
 # def dashboard_page():
-#     st.markdown("## 📊 Detection Analytics Dashboard")
-    
+#     st.markdown('<div class="section-card">', unsafe_allow_html=True)
+#     st.subheader("📊 Detection Analytics Dashboard")
 #     if not st.session_state.detection_history:
 #         st.info("No data yet. Start camera or upload images.")
 #         return
-    
 #     df = pd.DataFrame(st.session_state.detection_history)
     
-#     # Metrics
 #     col1,col2,col3,col4,col5 = st.columns(5)
 #     with col1:
 #         st.metric("Total Detections", len(df))
@@ -296,14 +334,13 @@
 #         rate = (fire/len(df))*100 if len(df)>0 else 0
 #         st.metric("Fire Rate", f"{rate:.1f}%")
     
-#     # Charts
 #     c1,c2 = st.columns(2)
 #     with c1:
 #         fig_pie = px.pie(values=df['status'].value_counts().values,
 #                          names=df['status'].value_counts().index,
 #                          title="Status Distribution",
 #                          color_discrete_sequence=['#ff4444','#ffaa44','#44ff44','#888888'])
-#         fig_pie.update_layout(paper_bgcolor='#1e1e1e', font_color='white')
+#         fig_pie.update_layout(paper_bgcolor='#23263b', font_color='#eef2ff')
 #         st.plotly_chart(fig_pie, use_container_width=True)
 #     with c2:
 #         fig_line = go.Figure()
@@ -312,12 +349,11 @@
 #                                       line=dict(color='#ff4444', width=2)))
 #         fig_line.add_hline(y=35, line_dash="dash", line_color='orange', annotation_text="Threshold 35%")
 #         fig_line.update_layout(title="Confidence Trend", xaxis_title="Time", yaxis_title="Confidence (%)",
-#                                paper_bgcolor='#1e1e1e', font_color='white', plot_bgcolor='#0a0a0a')
-#         fig_line.update_xaxes(gridcolor='#333')
-#         fig_line.update_yaxes(gridcolor='#333')
+#                                paper_bgcolor='#23263b', font_color='#eef2ff', plot_bgcolor='#1a1c2e')
+#         fig_line.update_xaxes(gridcolor='#2c2f42')
+#         fig_line.update_yaxes(gridcolor='#2c2f42')
 #         st.plotly_chart(fig_line, use_container_width=True)
     
-#     # Recent table
 #     st.markdown("### Recent Detections")
 #     recent = df.tail(10).sort_values('timestamp', ascending=False)
 #     recent['timestamp'] = recent['timestamp'].dt.strftime('%H:%M:%S')
@@ -325,7 +361,6 @@
 #     st.dataframe(recent[['timestamp','status','confidence','num_detections','processing_time']],
 #                  use_container_width=True)
     
-#     # Export / Clear
 #     col1,col2 = st.columns(2)
 #     with col1:
 #         if st.button("📥 Export to CSV", use_container_width=True):
@@ -340,12 +375,14 @@
 #                                       'uncertain':0,'undetermined':0,'avg_confidence':0,'total_processing_time':0}
 #             st.success("Cleared!")
 #             st.rerun()
+#     st.markdown('</div>', unsafe_allow_html=True)
 
 # # ============================================
-# # PAGE: SETTINGS
+# # SETTINGS PAGE (unchanged)
 # # ============================================
 # def settings_page():
-#     st.markdown("## ⚙️ Settings")
+#     st.markdown('<div class="section-card">', unsafe_allow_html=True)
+#     st.subheader("⚙️ Settings")
 #     st.markdown(f"**API URL:** `{API_URL}`")
 #     try:
 #         r = requests.get(THRESHOLDS_ENDPOINT, timeout=2)
@@ -360,20 +397,19 @@
 #             st.warning("Could not fetch thresholds from API")
 #     except:
 #         st.error("API not reachable")
-    
 #     st.markdown("### System Info")
 #     st.info(f"Streamlit version: {st.__version__}")
 #     st.info(f"History records: {len(st.session_state.detection_history)}")
 #     st.info(f"Total detections: {st.session_state.stats['total_detections']}")
+#     st.markdown('</div>', unsafe_allow_html=True)
 
 # # ============================================
-# # MAIN APP
+# # MAIN
 # # ============================================
 # def main():
-#     st.title("🔥 Real-Time Fire Detection System")
-#     st.markdown("Powered by **YOLOv8 + FastAPI** | Dark Theme")
+#     st.title("🔥 Real-Time Fire Detection System (Dark Theme)")
+#     st.markdown("Powered by **YOLOv8 + FastAPI** | Soft Dark Mode")
     
-#     # Sidebar
 #     st.sidebar.markdown("## Navigation")
 #     page = st.sidebar.radio("Go to", ["🎥 Live Camera", "📤 Upload Images", "📊 Dashboard", "⚙️ Settings"])
     
@@ -397,9 +433,8 @@
 #     st.sidebar.metric("Avg Confidence", f"{st.session_state.stats['avg_confidence']*100:.1f}%")
     
 #     st.sidebar.markdown("---")
-#     st.sidebar.info("1. Start backend\n2. Select camera\n3. Press START CAMERA")
+#     st.sidebar.info("⚡ Speed tips:\n- Lower resolution\n- Higher 'Process every N frames'\n- Lower JPEG quality\n- Disable drawing boxes")
     
-#     # Page router
 #     if page == "🎥 Live Camera":
 #         live_camera_page()
 #     elif page == "📤 Upload Images":
@@ -426,17 +461,11 @@ from PIL import Image
 import warnings
 warnings.filterwarnings('ignore')
 
-from utils import apply_global_style
-from camera_utils import get_camera_source, open_camera, preprocess_frame, release_camera
-# from streamlit_webrtc import webrtc_streamer
-
-# webrtc_streamer(key="camera")
-
-# Apply adaptive theme logic
-apply_global_style()
+# Use the universal camera utilities (works on local + cloud)
+import camera_utils as cam
 
 # ============================================
-# PAGE CONFIG & ATTRACTIVE DARK THEME (Soft, readable)
+# PAGE CONFIG & ATTRACTIVE DARK THEME
 # ============================================
 st.set_page_config(
     page_title="Fire Detection System",
@@ -445,11 +474,85 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
+st.markdown("""
+<style>
+    /* Base background - soft dark */
+    .stApp {
+        background: linear-gradient(135deg, #1a1c2e 0%, #1e2035 100%);
+    }
+    /* Sidebar */
+    .css-1d391kg, .css-12oz5g7 {
+        background-color: #151728;
+        border-right: 1px solid #2c2f42;
+    }
+    /* Headers */
+    h1, h2, h3, .stMarkdown {
+        color: #eef2ff !important;
+    }
+    /* Metric boxes */
+    [data-testid="stMetricValue"] {
+        color: #ff6b6b !important;
+        font-size: 2rem !important;
+    }
+    [data-testid="stMetricLabel"] {
+        color: #cbd5ff !important;
+    }
+    /* Section cards */
+    .section-card {
+        background-color: #23263b;
+        border-radius: 24px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+        border: 1px solid #2c2f42;
+    }
+    /* Camera container */
+    .camera-container {
+        background-color: #0f111d;
+        border-radius: 24px;
+        padding: 10px;
+        border: 2px solid #ff4444;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+    }
+    /* Buttons */
+    .stButton > button {
+        background-color: #ff4444;
+        color: white;
+        border-radius: 12px;
+        border: none;
+        font-weight: 600;
+        transition: 0.2s;
+    }
+    .stButton > button:hover {
+        background-color: #ff2222;
+        transform: scale(1.02);
+    }
+    /* Dataframe */
+    .dataframe {
+        background-color: #1e2137 !important;
+        color: #eef2ff !important;
+    }
+    /* Info/Warning boxes */
+    .stAlert {
+        background-color: #23263b !important;
+        color: #eef2ff !important;
+        border-left: 4px solid #ff4444 !important;
+    }
+    /* Plotly charts background */
+    .js-plotly-plot .plotly .bg {
+        fill: #23263b !important;
+    }
+    /* Sliders, selectboxes */
+    .stSelectbox label, .stSlider label {
+        color: #eef2ff !important;
+    }
+</style>
+""", unsafe_allow_html=True)
+
 # ============================================
-# CONFIGURATION (unchanged)
+# CONFIGURATION
 # ============================================
-# API_URL = "http://localhost:8000"
-API_URL = "https://visionmateai-1.onrender.com"
+API_URL = "http://localhost:8000"
 PREDICT_ENDPOINT = f"{API_URL}/predict"
 HEALTH_ENDPOINT = f"{API_URL}/health"
 THRESHOLDS_ENDPOINT = f"{API_URL}/thresholds"
@@ -463,11 +566,10 @@ if 'stats' not in st.session_state:
     }
 
 # ============================================
-# HELPER FUNCTIONS (unchanged)
+# HELPER FUNCTIONS
 # ============================================
 def predict_image(image_bytes):
     try:
-        print("PREDICT_ENDPOINT:-", PREDICT_ENDPOINT)
         files = {'file': ('image.jpg', image_bytes, 'image/jpeg')}
         response = requests.post(PREDICT_ENDPOINT, files=files, timeout=30)
         if response.status_code == 200:
@@ -511,14 +613,121 @@ def update_statistics(result):
 
 def check_api_health():
     try:
-        print("Health API Endpoint:- ", HEALTH_ENDPOINT)
         r = requests.get(HEALTH_ENDPOINT, timeout=3)
         return r.status_code == 200 and r.json().get('model_loaded', False)
     except:
         return False
 
 # ============================================
-# LIVE CAMERA PAGE (theme only)
+# LOCAL MODE (real‑time OpenCV)
+# ============================================
+def run_local_camera(source, w, h, process_every_n, jpeg_quality, draw_boxes,
+                     frame_placeholder, metrics_placeholder, status_placeholder):
+    cap = cam.open_camera(source, w, h)
+    if cap is None:
+        st.error(f"Cannot open local camera source: {source}. Try a different option.")
+        return
+
+    frame_count = 0
+    try:
+        while True:
+            ret, frame = cap.read()
+            if not ret:
+                time.sleep(0.02)
+                continue
+            frame = cam.preprocess_frame(frame, source, w, h)
+            frame_count += 1
+
+            if frame_count % process_every_n == 0:
+                encode_params = [cv2.IMWRITE_JPEG_QUALITY, jpeg_quality]
+                _, buffer = cv2.imencode('.jpg', frame, encode_params)
+                result = predict_image(buffer.tobytes())
+
+                if result:
+                    update_statistics(result)
+                    if draw_boxes and result.get('detections'):
+                        frame = draw_detections(frame, result['detections'])
+
+                    with metrics_placeholder.container():
+                        col1, col2, col3, col4 = st.columns(4)
+                        col1.metric("Status", result['status'].replace('_', ' ').title())
+                        conf = result['max_confidence'] * 100
+                        col2.metric("Confidence", f"{conf:.1f}%")
+                        col3.metric("Detections", result['num_detections'])
+                        col4.metric("API Time", f"{result['processing_time_ms']:.0f}ms")
+
+                    if result['status'] == 'fire_detected':
+                        status_placeholder.error(f"🚨 FIRE DETECTED! Confidence: {conf:.1f}%")
+                    elif result['status'] == 'uncertain':
+                        status_placeholder.warning(f"⚠️ Possible Fire: {conf:.1f}%")
+                    else:
+                        status_placeholder.success("✅ No Fire Detected")
+                else:
+                    status_placeholder.error("API not responding")
+
+            frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+            frame_placeholder.image(frame_rgb, channels="RGB", use_container_width=True)
+
+    except Exception as e:
+        st.error(f"Stream error: {e}")
+    finally:
+        cam.release_camera(cap)
+
+# ============================================
+# CLOUD MODE (frame‑by‑frame using st.camera_input)
+# ============================================
+def run_cloud_camera(w, h, jpeg_quality, draw_boxes,
+                     frame_placeholder, metrics_placeholder, status_placeholder):
+    st.info("🌐 Cloud mode: Click 'Capture' to take a photo. The API will analyse it for fire.")
+    
+    captured_img = st.camera_input("📸 Take a picture", key="fire_cloud_cam")
+    
+    if captured_img is not None:
+        # Convert to OpenCV BGR
+        bytes_data = captured_img.getvalue()
+        np_arr = np.frombuffer(bytes_data, np.uint8)
+        frame = cv2.imdecode(np_arr, cv2.IMREAD_COLOR)
+        frame = cv2.resize(frame, (w, h))
+        
+        # Encode to JPEG with specified quality
+        encode_params = [cv2.IMWRITE_JPEG_QUALITY, jpeg_quality]
+        _, buffer = cv2.imencode('.jpg', frame, encode_params)
+        result = predict_image(buffer.tobytes())
+        
+        if result:
+            update_statistics(result)
+            if draw_boxes and result.get('detections'):
+                frame = draw_detections(frame, result['detections'])
+            
+            with metrics_placeholder.container():
+                col1, col2, col3, col4 = st.columns(4)
+                col1.metric("Status", result['status'].replace('_', ' ').title())
+                conf = result['max_confidence'] * 100
+                col2.metric("Confidence", f"{conf:.1f}%")
+                col3.metric("Detections", result['num_detections'])
+                col4.metric("API Time", f"{result['processing_time_ms']:.0f}ms")
+            
+            if result['status'] == 'fire_detected':
+                status_placeholder.error(f"🚨 FIRE DETECTED! Confidence: {conf:.1f}%")
+            elif result['status'] == 'uncertain':
+                status_placeholder.warning(f"⚠️ Possible Fire: {conf:.1f}%")
+            else:
+                status_placeholder.success("✅ No Fire Detected")
+        else:
+            status_placeholder.error("API not responding")
+        
+        # Display the annotated frame
+        frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        frame_placeholder.image(frame_rgb, channels="RGB", use_container_width=True)
+        
+        # Button to capture another image
+        if st.button("📸 Capture another image"):
+            st.rerun()
+    else:
+        st.info("Click the camera button above to take a picture and run fire detection.")
+
+# ============================================
+# LIVE CAMERA PAGE (unified)
 # ============================================
 def live_camera_page():
     st.markdown('<div class="section-card">', unsafe_allow_html=True)
@@ -528,7 +737,12 @@ def live_camera_page():
         st.error("❌ API is not reachable. Please start the backend: `python app.py`")
         return
     
-    camera_source = get_camera_source()
+    # Camera source selection: only show when running locally
+    if not cam.is_cloud():
+        camera_source = cam.get_camera_source()
+    else:
+        camera_source = None
+        st.info("Running on Streamlit Cloud – camera will use browser capture.")
     
     col1, col2, col3 = st.columns(3)
     with col1:
@@ -553,59 +767,12 @@ def live_camera_page():
     status_placeholder = st.empty()
     
     if run_stream:
-        cap = open_camera(camera_source, w, h)
-        if cap is None:
-            st.error(f"Could not open camera source: {camera_source}")
-            return
-        
-        st.success(f"Camera opened at {w}x{h}. Streaming...")
-        frame_count = 0
-        try:
-            while run_stream:
-                ret, frame = cap.read()
-                if not ret:
-                    time.sleep(0.02)
-                    continue
-                frame = preprocess_frame(frame, camera_source, w, h)
-                frame_count += 1
-                
-                if frame_count % process_every_n == 0:
-                    encode_params = [cv2.IMWRITE_JPEG_QUALITY, jpeg_quality]
-                    _, buffer = cv2.imencode('.jpg', frame, encode_params)
-                    result = predict_image(buffer.tobytes())
-                    
-                    if result:
-                        update_statistics(result)
-                        if draw_boxes and result.get('detections'):
-                            frame = draw_detections(frame, result['detections'])
-                        
-                        with metrics_placeholder.container():
-                            col1, col2, col3, col4 = st.columns(4)
-                            col1.metric("Status", result['status'].replace('_', ' ').title())
-                            conf = result['max_confidence'] * 100
-                            col2.metric("Confidence", f"{conf:.1f}%")
-                            col3.metric("Detections", result['num_detections'])
-                            col4.metric("API Time", f"{result['processing_time_ms']:.0f}ms")
-                        
-                        if result['status'] == 'fire_detected':
-                            status_placeholder.error(f"🚨 FIRE DETECTED! Confidence: {conf:.1f}%")
-                        elif result['status'] == 'uncertain':
-                            status_placeholder.warning(f"⚠️ Possible Fire: {conf:.1f}%")
-                        else:
-                            status_placeholder.success("✅ No Fire Detected")
-                    else:
-                        status_placeholder.error("API not responding")
-                
-                frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-                frame_placeholder.image(frame_rgb, channels="RGB", use_container_width=True)
-        except Exception as e:
-            st.error(f"Stream error: {e}")
-        finally:
-            release_camera(cap)
-            frame_placeholder.empty()
-            metrics_placeholder.empty()
-            status_placeholder.empty()
-            st.info("Camera stopped.")
+        if cam.is_cloud():
+            run_cloud_camera(w, h, jpeg_quality, draw_boxes,
+                             frame_placeholder, metrics_placeholder, status_placeholder)
+        else:
+            run_local_camera(camera_source, w, h, process_every_n, jpeg_quality, draw_boxes,
+                             frame_placeholder, metrics_placeholder, status_placeholder)
     else:
         st.info("Press START CAMERA to begin real-time detection (fast mode).")
     st.markdown('</div>', unsafe_allow_html=True)
@@ -659,7 +826,7 @@ def image_upload_page():
     st.markdown('</div>', unsafe_allow_html=True)
 
 # ============================================
-# DASHBOARD PAGE (with dark-themed charts)
+# DASHBOARD PAGE (unchanged, dark-themed charts already present)
 # ============================================
 def dashboard_page():
     st.markdown('<div class="section-card">', unsafe_allow_html=True)
@@ -734,7 +901,6 @@ def settings_page():
     st.subheader("⚙️ Settings")
     st.markdown(f"**API URL:** `{API_URL}`")
     try:
-        print("THRESHOLDS_ENDPOINT:- ", )
         r = requests.get(THRESHOLDS_ENDPOINT, timeout=2)
         if r.status_code == 200:
             t = r.json()
@@ -757,8 +923,8 @@ def settings_page():
 # MAIN
 # ============================================
 def main():
-    st.title("🔥 Real-Time Fire Detection System")
-    st.markdown("Powered by **YOLOv8 + FastAPI**")
+    st.title("🔥 Real-Time Fire Detection System (Dark Theme)")
+    st.markdown("Powered by **YOLOv8 + FastAPI** | Soft Dark Mode")
     
     st.sidebar.markdown("## Navigation")
     page = st.sidebar.radio("Go to", ["🎥 Live Camera", "📤 Upload Images", "📊 Dashboard", "⚙️ Settings"])
@@ -768,7 +934,6 @@ def main():
     if check_api_health():
         st.sidebar.success("✅ Connected")
         try:
-            print("HEALTH_ENDPOINT:- ", HEALTH_ENDPOINT)
             info = requests.get(HEALTH_ENDPOINT).json()
             st.sidebar.info(f"Device: {info.get('device','unknown')}")
         except:

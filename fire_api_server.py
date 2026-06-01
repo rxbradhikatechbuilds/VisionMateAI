@@ -42,10 +42,8 @@ app.add_middleware(
 
 # Configuration
 class Config:
-    MODEL_PATH = "pages/models/best.pt"
-    #MODEL_PATH = "E:\\FinalvisionMateAi-V2\\FinalvisionMateAi-V2\\pages\\models\\best.pt"
-    ONNX_MODEL_PATH = "pages/models/fire_detection_best.onnx"
-    #ONNX_MODEL_PATH = "E:\\FinalvisionMateAi-V2\\FinalvisionMateAi-V2\\pages\\models\\fire_detection_best.onnx"
+    MODEL_PATH = "D:\\Data_science\\visionmateai_v1\\pages\\runs\\detect\\output\\exp1\\weights\\best.pt"
+    ONNX_MODEL_PATH = "D:\\Data_science\\visionmateai_v1\\continuous_fire\\fire_detection_best.onnx"
     CONFIDENCE_THRESHOLD = 0.35  # Changed from 0.25 to 0.35 (hardcoded)
     IOU_THRESHOLD = 0.50  # Changed from 0.45 to 0.50 (hardcoded)
     MAX_IMAGE_SIZE = 10 * 1024 * 1024  # 10MB

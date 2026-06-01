@@ -15,12 +15,144 @@
 # import os
 # import requests
 
-# from utils import apply_global_style
-# from camera_utils import get_camera_source, open_camera, preprocess_frame
+# from camera_utils import get_camera_source, open_camera, preprocess_frame, release_camera
 
-# st.set_page_config(page_title="VisionMate AI - Complete Suite", page_icon="🎯", layout="wide", initial_sidebar_state="expanded")
-# apply_global_style()
+# # ============================================
+# # PAGE CONFIG & SOFT DARK THEME (Attractive, readable)
+# # ============================================
+# st.set_page_config(
+#     page_title="VisionMate AI - Complete Suite",
+#     page_icon="🎯",
+#     layout="wide",
+#     initial_sidebar_state="expanded"
+# )
 
+# st.markdown("""
+# <style>
+#     /* Base background - soft dark blue/gray */
+#     .stApp {
+#         background: linear-gradient(135deg, #1a1c2e 0%, #1e2035 100%);
+#     }
+#     /* Sidebar */
+#     .css-1d391kg, .css-12oz5g7 {
+#         background-color: #151728;
+#         border-right: 1px solid #2c2f42;
+#     }
+#     /* Main header */
+#     .main-header {
+#         background: linear-gradient(135deg, #23263b 0%, #1e2137 100%);
+#         padding: 1.5rem;
+#         border-radius: 24px;
+#         text-align: center;
+#         margin-bottom: 2rem;
+#         border: 1px solid #ff4444;
+#         box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+#     }
+#     .main-header h1 {
+#         color: #ff6b6b;
+#         margin-bottom: 0.5rem;
+#         font-weight: 700;
+#     }
+#     .main-header p {
+#         color: #cbd5ff;
+#         font-size: 1.1rem;
+#     }
+#     /* Section cards */
+#     .section-card {
+#         background-color: #23263b;
+#         border-radius: 24px;
+#         padding: 1.5rem;
+#         margin-bottom: 2rem;
+#         box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+#         border: 1px solid #2c2f42;
+#     }
+#     /* Metric boxes */
+#     .metric-red, .metric-sky {
+#         background: #23263b;
+#         border-radius: 16px;
+#         padding: 1rem;
+#         text-align: center;
+#         border-left: 5px solid;
+#         box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+#     }
+#     .metric-red { border-left-color: #ff4444; }
+#     .metric-sky { border-left-color: #44aaff; }
+#     .metric-red h3, .metric-sky h3 {
+#         font-size: 2rem;
+#         margin: 0;
+#         color: #eef2ff;
+#     }
+#     .metric-red p, .metric-sky p {
+#         margin: 0;
+#         color: #cbd5ff;
+#         font-size: 0.9rem;
+#     }
+#     /* Camera container */
+#     .camera-container {
+#         background-color: #0f111d;
+#         border-radius: 24px;
+#         padding: 10px;
+#         border: 2px solid #ff4444;
+#         box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+#     }
+#     /* Detection list */
+#     .detection-item {
+#         background: #1e2137;
+#         border-radius: 12px;
+#         padding: 0.5rem 1rem;
+#         margin-bottom: 0.5rem;
+#         border-left: 3px solid #ff4444;
+#         color: #eef2ff;
+#     }
+#     /* Buttons */
+#     .stButton > button {
+#         background-color: #ff4444;
+#         color: white;
+#         border-radius: 12px;
+#         border: none;
+#         font-weight: 600;
+#         transition: 0.2s;
+#     }
+#     .stButton > button:hover {
+#         background-color: #ff2222;
+#         transform: scale(1.02);
+#     }
+#     /* Text colors */
+#     h1, h2, h3, .stMarkdown, label, .stMetricLabel {
+#         color: #eef2ff !important;
+#     }
+#     .stMetricValue {
+#         color: #ff6b6b !important;
+#     }
+#     /* Dataframe */
+#     .dataframe {
+#         background-color: #1e2137 !important;
+#         color: #eef2ff !important;
+#     }
+#     /* Sidebar text */
+#     .sidebar .sidebar-content {
+#         color: #eef2ff;
+#     }
+#     /* Info/Warning boxes */
+#     .stAlert {
+#         background-color: #23263b !important;
+#         color: #eef2ff !important;
+#         border-left: 4px solid #ff4444 !important;
+#     }
+#     /* Selectbox, slider */
+#     .stSelectbox label, .stSlider label {
+#         color: #eef2ff !important;
+#     }
+#     /* Plotly charts */
+#     .js-plotly-plot .plotly .bg {
+#         fill: #23263b !important;
+#     }
+# </style>
+# """, unsafe_allow_html=True)
+
+# # ============================================
+# # CONFIGURATION (unchanged)
+# # ============================================
 # BASE_DIR = Path(__file__).parent
 # possible_model_paths = [
 #     BASE_DIR / "runs/detect/output/exp1/weights/best.pt",
@@ -34,9 +166,17 @@
 #         MODEL_PATH = path
 #         break
 
-# CLASSES = ["aeroplane","bicycle","bird","boat","bottle","bus","car","cat","chair","cow","diningtable","dog","horse","motorbike","person","pottedplant","sheep","sofa","train","tvmonitor"]
-# REAL_WIDTHS = {"person":0.5,"car":1.8,"bus":2.5,"bicycle":0.6,"motorbike":0.7,"cat":0.2,"dog":0.3,"chair":0.5,"bottle":0.1,"tvmonitor":0.9,"aeroplane":3.0,"bird":0.1,"boat":1.5,"diningtable":0.8,"horse":0.6,"sheep":0.4,"cow":0.7,"pottedplant":0.3,"sofa":0.8,"train":2.8}
+# CLASSES = ["aeroplane","bicycle","bird","boat","bottle","bus","car","cat","chair","cow",
+#            "diningtable","dog","horse","motorbike","person","pottedplant","sheep","sofa","train","tvmonitor"]
+# REAL_WIDTHS = {"person":0.5,"car":1.8,"bus":2.5,"bicycle":0.6,"motorbike":0.7,"cat":0.2,"dog":0.3,
+#                "chair":0.5,"bottle":0.1,"tvmonitor":0.9,"aeroplane":3.0,"bird":0.1,"boat":1.5,
+#                "diningtable":0.8,"horse":0.6,"sheep":0.4,"cow":0.7,"pottedplant":0.3,"sofa":0.8,"train":2.8}
 
+# OPENROUTER_API_KEY = "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"
+
+# # ============================================
+# # HELPER FUNCTIONS (unchanged)
+# # ============================================
 # @st.cache_resource
 # def load_yolo_model():
 #     if MODEL_PATH is None:
@@ -62,7 +202,8 @@
 #         headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
 #         data = {
 #             "model": model,
-#             "messages": [{"role": "user", "content": [{"type": "text", "text": prompt}, {"type": "image_url", "image_url": {"url": f"data:image/png;base64,{img_str}"}}]}],
+#             "messages": [{"role": "user", "content": [{"type": "text", "text": prompt},
+#                        {"type": "image_url", "image_url": {"url": f"data:image/png;base64,{img_str}"}}]}],
 #             "temperature": temperature,
 #             "max_tokens": max_tokens
 #         }
@@ -113,20 +254,21 @@
 #         if class_counts:
 #             df_counts = pd.DataFrame(list(class_counts.items()), columns=['Class', 'Count']).sort_values('Count', ascending=False)
 #             fig = px.bar(df_counts, x='Class', y='Count', color='Count', title="Detection Frequency by Object Type", color_continuous_scale='Viridis')
-#             fig.update_layout(height=400)
+#             fig.update_layout(height=400, paper_bgcolor='#23263b', font_color='#eef2ff', plot_bgcolor='#1a1c2e')
 #             st.plotly_chart(fig, use_container_width=True)
 #     with col2:
 #         st.markdown("#### 📈 Confidence Distribution")
 #         df_conf = pd.DataFrame([{'Confidence': d['confidence']} for d in detection_history])
-#         fig = px.histogram(df_conf, x='Confidence', nbins=20, title="Confidence Score Distribution", color_discrete_sequence=['#667eea'])
-#         fig.update_layout(height=400)
+#         fig = px.histogram(df_conf, x='Confidence', nbins=20, title="Confidence Score Distribution", color_discrete_sequence=['#ff4444'])
+#         fig.update_layout(height=400, paper_bgcolor='#23263b', font_color='#eef2ff', plot_bgcolor='#1a1c2e')
 #         st.plotly_chart(fig, use_container_width=True)
 
+# # ============================================
+# # MAIN APP (identical logic, only UI theme changed)
+# # ============================================
 # def main():
-#     # Hardcoded OpenRouter API key (as requested)
-#     OPENROUTER_API_KEY = "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"
-
 #     st.markdown('<div class="main-header"><h1>🎯 VisionMate AI - Complete Computer Vision Suite</h1><p>Real-time Detection | AI Image Analysis | Data Export | Analytics Dashboard</p></div>', unsafe_allow_html=True)
+    
 #     yolo_model = load_yolo_model()
 #     if yolo_model is None:
 #         st.warning("⚠️ YOLO model not found. Camera detection will be disabled. Train the model first.")
@@ -138,27 +280,29 @@
 #         st.markdown("---")
 #         st.markdown("### ⚙️ Global Settings")
 #         confidence_threshold = st.slider("Detection Confidence", 0.0, 1.0, 0.25, 0.05)
-#         # Camera source selection (using your three-option helper)
-#         camera_source = get_camera_source()   # returns int or string
+#         camera_source = get_camera_source()
     
-#     # Initialize session state for detection data
 #     if 'detection_data' not in st.session_state:
 #         st.session_state.detection_data = []
 #     if 'yolo_stats' not in st.session_state:
 #         st.session_state.yolo_stats = {'total_detections': 0, 'unique_classes': 0, 'class_counts': {}}
-
+    
+#     # PAGE 1: LIVE CAMERA DETECTION
 #     if page == "📹 Live Camera Detection":
 #         st.markdown('<div class="section-card">', unsafe_allow_html=True)
 #         st.subheader("📹 Real-Time Object Detection")
 #         if yolo_model is None:
 #             st.error("❌ YOLO model not available. Please train the model first.")
 #         else:
-#             # Additional stream settings
-#             process_every_n = st.slider("Process every N frames", 1, 10, 3, key="yolo_process")
-#             resolution = st.selectbox("Quality Profile", ["Medium (640x480)", "Low (320x240)"], key="yolo_res")
-#             width, height = (640, 480) if resolution == "Medium (640x480)" else (320, 240)
+#             col1, col2, col3 = st.columns(3)
+#             with col1:
+#                 process_every_n = st.slider("Process every N frames", 1, 10, 3, key="yolo_process")
+#             with col2:
+#                 resolution = st.selectbox("Quality Profile", ["Medium (640x480)", "Low (320x240)"], key="yolo_res")
+#                 width, height = (640, 480) if resolution == "Medium (640x480)" else (320, 240)
+#             with col3:
+#                 run_stream = st.checkbox("🔄 START CAMERA", value=False, key="yolo_run")
             
-#             run_stream = st.checkbox("🔄 Start Video Stream", value=False, key="yolo_run")
 #             status_placeholder = st.empty()
 #             video_placeholder = st.empty()
 #             stats_placeholder = st.empty()
@@ -166,8 +310,8 @@
             
 #             def start_streaming(source, w, h, process_interval):
 #                 cap = open_camera(source, w, h)
-#                 if not cap or not cap.isOpened():
-#                     st.error("Cannot open camera")
+#                 if cap is None:
+#                     st.error(f"Cannot open camera source: {source}. Try a different option.")
 #                     return
                 
 #                 frame_count = 0
@@ -180,13 +324,11 @@
 #                     while run_stream:
 #                         ret, frame = cap.read()
 #                         if not ret:
-#                             time.sleep(0.05)
+#                             time.sleep(0.02)
 #                             continue
-                        
 #                         frame = preprocess_frame(frame, source, w, h)
 #                         frame_count += 1
                         
-#                         # Process every Nth frame
 #                         if frame_count % process_interval == 0:
 #                             results = yolo_model(frame, conf=confidence_threshold, verbose=False)
 #                             detections = []
@@ -202,7 +344,6 @@
 #                                     real_width = REAL_WIDTHS.get(class_name, 0.5)
 #                                     distance = estimate_distance(bbox_width_px, real_width=real_width)
                                     
-#                                     # Draw bounding box
 #                                     color = (0, 255, 0)
 #                                     cv2.rectangle(annotated, (x1, y1), (x2, y2), color, 2)
 #                                     label = f"{class_name}: {conf:.1%}"
@@ -224,7 +365,6 @@
 #                                     if len(detection_history) > 500:
 #                                         detection_history.pop(0)
                             
-#                             # Update session state for analytics/export
 #                             st.session_state.detection_data = detection_history[-30:][::-1]
 #                             st.session_state.yolo_stats = {
 #                                 'total_detections': total_detections,
@@ -232,15 +372,12 @@
 #                                 'class_counts': dict(class_counts)
 #                             }
                             
-#                             # Update UI status
 #                             if detections:
 #                                 status_placeholder.success(f"✅ Detecting {len(detections)} object(s)")
 #                             else:
 #                                 status_placeholder.warning("⚠️ No objects detected")
                             
-#                             # Update live stats
 #                             with stats_placeholder.container():
-#                                 st.markdown("**Real-time Metrics**")
 #                                 col_a, col_b = st.columns(2)
 #                                 with col_a:
 #                                     st.metric("Total Detections", total_detections)
@@ -252,37 +389,34 @@
                             
 #                             with detections_placeholder.container():
 #                                 if detections:
-#                                     st.markdown("**Current Detections:**")
+#                                     st.markdown("**🔍 Current Detections:**")
 #                                     for det in detections[:5]:
 #                                         dist_text = f"{det['distance']:.1f}m" if det['distance'] else "N/A"
-#                                         st.markdown(f"• **{det['class'].upper()}** - {det['confidence']:.1%} - 📏 {dist_text}")
+#                                         st.markdown(f'<div class="detection-item">• <b>{det["class"].upper()}</b> - {det["confidence"]:.1%} - 📏 {dist_text}</div>', unsafe_allow_html=True)
                             
 #                             frame_to_show = annotated
 #                         else:
 #                             frame_to_show = frame
                         
-#                         # Display frame
 #                         frame_rgb = cv2.cvtColor(frame_to_show, cv2.COLOR_BGR2RGB)
 #                         video_placeholder.image(frame_rgb, channels="RGB", use_container_width=True)
-#                         time.sleep(0.01)
                         
 #                 except Exception as e:
 #                     st.error(f"Stream error: {e}")
 #                 finally:
-#                     cap.release()
+#                     release_camera(cap)
 #                     video_placeholder.empty()
 #                     status_placeholder.empty()
 #                     stats_placeholder.empty()
 #                     detections_placeholder.empty()
             
 #             if run_stream:
-#                 # Convert camera_source (which may be int or string) to the actual source value
-#                 src = camera_source
-#                 start_streaming(src, width, height, process_every_n)
+#                 start_streaming(camera_source, width, height, process_every_n)
 #             else:
-#                 st.write("Stopped. Check the box above to start streaming.")
+#                 st.info("Press **START CAMERA** to begin real-time object detection.")
 #         st.markdown('</div>', unsafe_allow_html=True)
-
+    
+#     # PAGE 2: AI IMAGE DESCRIPTION
 #     elif page == "🖼️ AI Image Description":
 #         st.markdown('<div class="section-card">', unsafe_allow_html=True)
 #         st.subheader("🖼️ AI-Powered Image Description")
@@ -312,9 +446,10 @@
 #                     prompt = prompts.get(description_style, prompts["Detailed Description"])
 #                     result = analyze_with_openrouter(image, OPENROUTER_API_KEY, model, prompt, temperature, max_tokens=500)
 #         st.markdown("#### 📝 Analysis Result")
-#         st.markdown(f'<div style="background: #f8f9fa; padding: 20px; border-radius: 10px; border-left: 4px solid #667eea;">{result}</div>', unsafe_allow_html=True)
+#         st.markdown(f'<div style="background: #1e2137; padding: 20px; border-radius: 12px; border-left: 4px solid #ff4444; color: #eef2ff;">{result}</div>', unsafe_allow_html=True)
 #         st.markdown('</div>', unsafe_allow_html=True)
-
+    
+#     # PAGE 3: ANALYTICS DASHBOARD
 #     elif page == "📊 Analytics Dashboard":
 #         st.markdown('<div class="section-card">', unsafe_allow_html=True)
 #         st.subheader("📊 Detection Analytics Dashboard")
@@ -328,7 +463,8 @@
 #             st.info("📭 No detection data available. Please run the camera detection first to collect data.")
 #             st.markdown("### How to get data:\n1. Go to **Live Camera Detection** page\n2. Click **Start Camera**\n3. Let the camera detect objects for a few seconds\n4. Return here to see analytics")
 #         st.markdown('</div>', unsafe_allow_html=True)
-
+    
+#     # PAGE 4: DATA EXPORT
 #     elif page == "📁 Data Export":
 #         st.markdown('<div class="section-card">', unsafe_allow_html=True)
 #         st.subheader("📁 Export Detection Data")
@@ -367,12 +503,13 @@
 #         else:
 #             st.info("📭 No data available to export. Please run camera detection first.")
 #         st.markdown('</div>', unsafe_allow_html=True)
-
+    
 #     st.markdown("---")
-#     st.markdown('<div style="text-align: center; color: #666; font-size: 12px;">VisionMate AI Suite | Powered by YOLOv8 + OpenRouter | Real-time Detection | AI Analysis</div>', unsafe_allow_html=True)
+#     st.markdown('<div style="text-align: center; color: #888; font-size: 12px;">VisionMate AI Suite | Powered by YOLOv8 + OpenRouter | Real-time Detection | AI Analysis</div>', unsafe_allow_html=True)
 
 # if __name__ == "__main__":
 #     main()
+
 import streamlit as st
 import cv2
 import numpy as np
@@ -390,14 +527,11 @@ from PIL import Image
 import os
 import requests
 
-from camera_utils import get_camera_source, open_camera, preprocess_frame, release_camera
-from utils import apply_global_style
-# from streamlit_webrtc import webrtc_streamer
-
-#webrtc_streamer(key="camera")
+# Use the universal camera utilities (works on local + cloud)
+import camera_utils as cam
 
 # ============================================
-# PAGE CONFIG & SOFT DARK THEME (Attractive, readable)
+# PAGE CONFIG & SOFT DARK THEME
 # ============================================
 st.set_page_config(
     page_title="VisionMate AI - Complete Suite",
@@ -406,19 +540,137 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-apply_global_style()
+st.markdown("""
+<style>
+    /* Base background - soft dark blue/gray */
+    .stApp {
+        background: linear-gradient(135deg, #1a1c2e 0%, #1e2035 100%);
+    }
+    /* Sidebar */
+    .css-1d391kg, .css-12oz5g7 {
+        background-color: #151728;
+        border-right: 1px solid #2c2f42;
+    }
+    /* Main header */
+    .main-header {
+        background: linear-gradient(135deg, #23263b 0%, #1e2137 100%);
+        padding: 1.5rem;
+        border-radius: 24px;
+        text-align: center;
+        margin-bottom: 2rem;
+        border: 1px solid #ff4444;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+    }
+    .main-header h1 {
+        color: #ff6b6b;
+        margin-bottom: 0.5rem;
+        font-weight: 700;
+    }
+    .main-header p {
+        color: #cbd5ff;
+        font-size: 1.1rem;
+    }
+    /* Section cards */
+    .section-card {
+        background-color: #23263b;
+        border-radius: 24px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+        border: 1px solid #2c2f42;
+    }
+    /* Metric boxes */
+    .metric-red, .metric-sky {
+        background: #23263b;
+        border-radius: 16px;
+        padding: 1rem;
+        text-align: center;
+        border-left: 5px solid;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+    .metric-red { border-left-color: #ff4444; }
+    .metric-sky { border-left-color: #44aaff; }
+    .metric-red h3, .metric-sky h3 {
+        font-size: 2rem;
+        margin: 0;
+        color: #eef2ff;
+    }
+    .metric-red p, .metric-sky p {
+        margin: 0;
+        color: #cbd5ff;
+        font-size: 0.9rem;
+    }
+    /* Camera container */
+    .camera-container {
+        background-color: #0f111d;
+        border-radius: 24px;
+        padding: 10px;
+        border: 2px solid #ff4444;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+    }
+    /* Detection list */
+    .detection-item {
+        background: #1e2137;
+        border-radius: 12px;
+        padding: 0.5rem 1rem;
+        margin-bottom: 0.5rem;
+        border-left: 3px solid #ff4444;
+        color: #eef2ff;
+    }
+    /* Buttons */
+    .stButton > button {
+        background-color: #ff4444;
+        color: white;
+        border-radius: 12px;
+        border: none;
+        font-weight: 600;
+        transition: 0.2s;
+    }
+    .stButton > button:hover {
+        background-color: #ff2222;
+        transform: scale(1.02);
+    }
+    /* Text colors */
+    h1, h2, h3, .stMarkdown, label, .stMetricLabel {
+        color: #eef2ff !important;
+    }
+    .stMetricValue {
+        color: #ff6b6b !important;
+    }
+    /* Dataframe */
+    .dataframe {
+        background-color: #1e2137 !important;
+        color: #eef2ff !important;
+    }
+    /* Sidebar text */
+    .sidebar .sidebar-content {
+        color: #eef2ff;
+    }
+    /* Info/Warning boxes */
+    .stAlert {
+        background-color: #23263b !important;
+        color: #eef2ff !important;
+        border-left: 4px solid #ff4444 !important;
+    }
+    /* Selectbox, slider */
+    .stSelectbox label, .stSlider label {
+        color: #eef2ff !important;
+    }
+    /* Plotly charts */
+    .js-plotly-plot .plotly .bg {
+        fill: #23263b !important;
+    }
+</style>
+""", unsafe_allow_html=True)
 
 # ============================================
-# CONFIGURATION (unchanged)
+# CONFIGURATION
 # ============================================
 BASE_DIR = Path(__file__).parent
 possible_model_paths = [
-    BASE_DIR / "pages/models/best.pt",
-    #BASE_DIR / "E:/FinalvisionMateAi-V2/FinalvisionMateAi-V2/pages/models/best.pt",
-    BASE_DIR / "pages/models/best.pt",
-    #BASE_DIR / "E:/FinalvisionMateAi-V2/FinalvisionMateAi-V2/pages/models/best.pt",
-    Path("pages/models/best.pt")
-    #Path("E:/FinalvisionMateAi-V2/FinalvisionMateAi-V2/pages/models/best.pt"),
+    BASE_DIR / "runs/detect/output/exp1/weights/best.pt",
+    BASE_DIR / "output/exp1/weights/best.pt",
+    Path("best.pt"),
 ]
 
 MODEL_PATH = None
@@ -433,10 +685,10 @@ REAL_WIDTHS = {"person":0.5,"car":1.8,"bus":2.5,"bicycle":0.6,"motorbike":0.7,"c
                "chair":0.5,"bottle":0.1,"tvmonitor":0.9,"aeroplane":3.0,"bird":0.1,"boat":1.5,
                "diningtable":0.8,"horse":0.6,"sheep":0.4,"cow":0.7,"pottedplant":0.3,"sofa":0.8,"train":2.8}
 
-OPENROUTER_API_KEY = "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"
+OPENROUTER_API_KEY = "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"
 
 # ============================================
-# HELPER FUNCTIONS (unchanged)
+# HELPER FUNCTIONS
 # ============================================
 @st.cache_resource
 def load_yolo_model():
@@ -525,7 +777,203 @@ def show_analytics_dashboard(detection_history, class_counts, total_detections):
         st.plotly_chart(fig, use_container_width=True)
 
 # ============================================
-# MAIN APP (identical logic, only UI theme changed)
+# YOLO DETECTION LOOP (works both local & cloud)
+# ============================================
+def process_yolo_frame(frame, yolo_model, confidence_threshold, class_counts, total_detections, detection_history):
+    """Run YOLO on a single frame, update stats, return annotated frame and updated counts."""
+    results = yolo_model(frame, conf=confidence_threshold, verbose=False)
+    detections = []
+    annotated = frame.copy()
+    
+    if results[0].boxes is not None:
+        for box in results[0].boxes:
+            class_name = CLASSES[int(box.cls[0])]
+            conf = float(box.conf[0])
+            bbox = box.xyxy[0].tolist()
+            x1, y1, x2, y2 = map(int, bbox)
+            bbox_width_px = x2 - x1
+            real_width = REAL_WIDTHS.get(class_name, 0.5)
+            distance = estimate_distance(bbox_width_px, real_width=real_width)
+            
+            color = (0, 255, 0)
+            cv2.rectangle(annotated, (x1, y1), (x2, y2), color, 2)
+            label = f"{class_name}: {conf:.1%}"
+            if distance:
+                label += f" | {distance:.1f}m"
+            cv2.putText(annotated, label, (x1, y1-5), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
+            
+            detection = {
+                'class': class_name,
+                'confidence': conf,
+                'bbox': bbox,
+                'distance': distance,
+                'timestamp': datetime.now()
+            }
+            detections.append(detection)
+            total_detections += 1
+            class_counts[class_name] += 1
+            detection_history.append(detection)
+            if len(detection_history) > 500:
+                detection_history.pop(0)
+    
+    return annotated, detections, class_counts, total_detections, detection_history
+
+# ----------------------------------------------------------------------
+# LOCAL MODE (real-time OpenCV)
+# ----------------------------------------------------------------------
+def run_local_yolo(source, yolo_model, width, height, process_interval, confidence_threshold,
+                   video_placeholder, status_placeholder, stats_placeholder, detections_placeholder):
+    cap = cam.open_camera(source, width, height)
+    if cap is None:
+        st.error(f"Cannot open local camera source: {source}. Try a different option.")
+        return
+    
+    frame_count = 0
+    total_detections = st.session_state.yolo_stats['total_detections']
+    class_counts = defaultdict(int, st.session_state.yolo_stats['class_counts'])
+    detection_history = st.session_state.detection_data.copy()
+    last_time = time.time()
+    
+    try:
+        while True:
+            ret, frame = cap.read()
+            if not ret:
+                time.sleep(0.02)
+                continue
+            frame = cam.preprocess_frame(frame, source, width, height)
+            frame_count += 1
+            
+            if frame_count % process_interval == 0:
+                annotated, detections, class_counts, total_detections, detection_history = process_yolo_frame(
+                    frame, yolo_model, confidence_threshold, class_counts, total_detections, detection_history
+                )
+                
+                # Update session state
+                st.session_state.detection_data = detection_history[-30:][::-1]
+                st.session_state.yolo_stats = {
+                    'total_detections': total_detections,
+                    'unique_classes': len(class_counts),
+                    'class_counts': dict(class_counts)
+                }
+                
+                # Update UI placeholders
+                if detections:
+                    status_placeholder.success(f"✅ Detecting {len(detections)} object(s)")
+                else:
+                    status_placeholder.warning("⚠️ No objects detected")
+                
+                with stats_placeholder.container():
+                    col_a, col_b = st.columns(2)
+                    with col_a:
+                        st.metric("Total Detections", total_detections)
+                        st.metric("FPS", f"{1/(time.time()-last_time):.1f}")
+                    with col_b:
+                        st.metric("Unique Classes", len(class_counts))
+                        st.metric("Current Objects", len(detections))
+                    last_time = time.time()
+                
+                with detections_placeholder.container():
+                    if detections:
+                        st.markdown("**🔍 Current Detections:**")
+                        for det in detections[:5]:
+                            dist_text = f"{det['distance']:.1f}m" if det['distance'] else "N/A"
+                            st.markdown(f'<div class="detection-item">• <b>{det["class"].upper()}</b> - {det["confidence"]:.1%} - 📏 {dist_text}</div>', unsafe_allow_html=True)
+                
+                frame_to_show = annotated
+            else:
+                frame_to_show = frame
+            
+            frame_rgb = cv2.cvtColor(frame_to_show, cv2.COLOR_BGR2RGB)
+            video_placeholder.image(frame_rgb, channels="RGB", use_container_width=True)
+            
+    except Exception as e:
+        st.error(f"Stream error: {e}")
+    finally:
+        cam.release_camera(cap)
+        video_placeholder.empty()
+        status_placeholder.empty()
+        stats_placeholder.empty()
+        detections_placeholder.empty()
+
+# ----------------------------------------------------------------------
+# CLOUD MODE (frame-by-frame using st.camera_input)
+# ----------------------------------------------------------------------
+def run_cloud_yolo(yolo_model, width, height, confidence_threshold,
+                   video_placeholder, status_placeholder, stats_placeholder, detections_placeholder):
+    st.info("🌐 Cloud mode: Click 'Capture' to take a photo. YOLO will detect objects in that photo.")
+    
+    # Initialize session variables for cloud mode
+    if 'cloud_detection_history' not in st.session_state:
+        st.session_state.cloud_detection_history = []
+    if 'cloud_total_detections' not in st.session_state:
+        st.session_state.cloud_total_detections = 0
+    if 'cloud_class_counts' not in st.session_state:
+        st.session_state.cloud_class_counts = defaultdict(int)
+    
+    # Camera input widget
+    captured_img = st.camera_input("📸 Take a picture", key="yolo_cloud_cam")
+    
+    if captured_img is not None:
+        # Convert to OpenCV BGR
+        bytes_data = captured_img.getvalue()
+        np_arr = np.frombuffer(bytes_data, np.uint8)
+        frame = cv2.imdecode(np_arr, cv2.IMREAD_COLOR)
+        frame = cv2.resize(frame, (width, height))
+        
+        # Process the frame
+        class_counts = defaultdict(int, st.session_state.cloud_class_counts)
+        total_detections = st.session_state.cloud_total_detections
+        detection_history = st.session_state.cloud_detection_history.copy()
+        
+        annotated, detections, class_counts, total_detections, detection_history = process_yolo_frame(
+            frame, yolo_model, confidence_threshold, class_counts, total_detections, detection_history
+        )
+        
+        # Update session state
+        st.session_state.cloud_detection_history = detection_history[-30:][::-1]
+        st.session_state.cloud_total_detections = total_detections
+        st.session_state.cloud_class_counts = dict(class_counts)
+        st.session_state.detection_data = detection_history[-30:][::-1]   # for analytics/export
+        st.session_state.yolo_stats = {
+            'total_detections': total_detections,
+            'unique_classes': len(class_counts),
+            'class_counts': dict(class_counts)
+        }
+        
+        # Update UI
+        if detections:
+            status_placeholder.success(f"✅ Detected {len(detections)} object(s)")
+        else:
+            status_placeholder.warning("⚠️ No objects detected")
+        
+        with stats_placeholder.container():
+            col_a, col_b = st.columns(2)
+            with col_a:
+                st.metric("Total Detections", total_detections)
+                st.metric("Frame Mode", "Single capture")
+            with col_b:
+                st.metric("Unique Classes", len(class_counts))
+                st.metric("Current Objects", len(detections))
+        
+        with detections_placeholder.container():
+            if detections:
+                st.markdown("**🔍 Detections in this image:**")
+                for det in detections[:5]:
+                    dist_text = f"{det['distance']:.1f}m" if det['distance'] else "N/A"
+                    st.markdown(f'<div class="detection-item">• <b>{det["class"].upper()}</b> - {det["confidence"]:.1%} - 📏 {dist_text}</div>', unsafe_allow_html=True)
+        
+        # Display annotated image
+        frame_rgb = cv2.cvtColor(annotated, cv2.COLOR_BGR2RGB)
+        video_placeholder.image(frame_rgb, channels="RGB", use_container_width=True)
+        
+        # Button to capture another image
+        if st.button("📸 Capture another image"):
+            st.rerun()
+    else:
+        st.info("Click the camera button above to take a picture and run YOLO detection.")
+
+# ============================================
+# MAIN APP
 # ============================================
 def main():
     st.markdown('<div class="main-header"><h1>🎯 VisionMate AI - Complete Computer Vision Suite</h1><p>Real-time Detection | AI Image Analysis | Data Export | Analytics Dashboard</p></div>', unsafe_allow_html=True)
@@ -541,7 +989,12 @@ def main():
         st.markdown("---")
         st.markdown("### ⚙️ Global Settings")
         confidence_threshold = st.slider("Detection Confidence", 0.0, 1.0, 0.25, 0.05)
-        camera_source = get_camera_source()
+        # Camera source selection only shown in local mode; cloud mode ignores it
+        if not cam.is_cloud():
+            camera_source = cam.get_camera_source()
+        else:
+            camera_source = None
+            st.info("Running on Streamlit Cloud – camera will use browser capture.")
     
     if 'detection_data' not in st.session_state:
         st.session_state.detection_data = []
@@ -569,115 +1022,19 @@ def main():
             stats_placeholder = st.empty()
             detections_placeholder = st.empty()
             
-            def start_streaming(source, w, h, process_interval):
-                cap = open_camera(source, w, h)
-                if cap is None:
-                    st.error(f"Cannot open camera source: {source}. Try a different option.")
-                    return
-                
-                frame_count = 0
-                total_detections = 0
-                class_counts = defaultdict(int)
-                detection_history = []
-                last_time = time.time()
-                
-                try:
-                    while run_stream:
-                        ret, frame = cap.read()
-                        if not ret:
-                            time.sleep(0.02)
-                            continue
-                        frame = preprocess_frame(frame, source, w, h)
-                        frame_count += 1
-                        
-                        if frame_count % process_interval == 0:
-                            results = yolo_model(frame, conf=confidence_threshold, verbose=False)
-                            detections = []
-                            annotated = frame.copy()
-                            
-                            if results[0].boxes is not None:
-                                for box in results[0].boxes:
-                                    class_name = CLASSES[int(box.cls[0])]
-                                    conf = float(box.conf[0])
-                                    bbox = box.xyxy[0].tolist()
-                                    x1, y1, x2, y2 = map(int, bbox)
-                                    bbox_width_px = x2 - x1
-                                    real_width = REAL_WIDTHS.get(class_name, 0.5)
-                                    distance = estimate_distance(bbox_width_px, real_width=real_width)
-                                    
-                                    color = (0, 255, 0)
-                                    cv2.rectangle(annotated, (x1, y1), (x2, y2), color, 2)
-                                    label = f"{class_name}: {conf:.1%}"
-                                    if distance:
-                                        label += f" | {distance:.1f}m"
-                                    cv2.putText(annotated, label, (x1, y1-5), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
-                                    
-                                    detection = {
-                                        'class': class_name,
-                                        'confidence': conf,
-                                        'bbox': bbox,
-                                        'distance': distance,
-                                        'timestamp': datetime.now()
-                                    }
-                                    detections.append(detection)
-                                    total_detections += 1
-                                    class_counts[class_name] += 1
-                                    detection_history.append(detection)
-                                    if len(detection_history) > 500:
-                                        detection_history.pop(0)
-                            
-                            st.session_state.detection_data = detection_history[-30:][::-1]
-                            st.session_state.yolo_stats = {
-                                'total_detections': total_detections,
-                                'unique_classes': len(class_counts),
-                                'class_counts': dict(class_counts)
-                            }
-                            
-                            if detections:
-                                status_placeholder.success(f"✅ Detecting {len(detections)} object(s)")
-                            else:
-                                status_placeholder.warning("⚠️ No objects detected")
-                            
-                            with stats_placeholder.container():
-                                col_a, col_b = st.columns(2)
-                                with col_a:
-                                    st.metric("Total Detections", total_detections)
-                                    st.metric("FPS", f"{1/(time.time()-last_time):.1f}")
-                                with col_b:
-                                    st.metric("Unique Classes", len(class_counts))
-                                    st.metric("Current Objects", len(detections))
-                                last_time = time.time()
-                            
-                            with detections_placeholder.container():
-                                if detections:
-                                    st.markdown("**🔍 Current Detections:**")
-                                    for det in detections[:5]:
-                                        dist_text = f"{det['distance']:.1f}m" if det['distance'] else "N/A"
-                                        st.markdown(f'<div class="detection-item">• <b>{det["class"].upper()}</b> - {det["confidence"]:.1%} - 📏 {dist_text}</div>', unsafe_allow_html=True)
-                            
-                            frame_to_show = annotated
-                        else:
-                            frame_to_show = frame
-                        
-                        frame_rgb = cv2.cvtColor(frame_to_show, cv2.COLOR_BGR2RGB)
-                        video_placeholder.image(frame_rgb, channels="RGB", use_container_width=True)
-                        
-                except Exception as e:
-                    st.error(f"Stream error: {e}")
-                finally:
-                    release_camera(cap)
-                    video_placeholder.empty()
-                    status_placeholder.empty()
-                    stats_placeholder.empty()
-                    detections_placeholder.empty()
-            
             if run_stream:
-                start_streaming(camera_source, width, height, process_every_n)
+                # Choose mode based on environment
+                if cam.is_cloud():
+                    run_cloud_yolo(yolo_model, width, height, confidence_threshold,
+                                   video_placeholder, status_placeholder, stats_placeholder, detections_placeholder)
+                else:
+                    run_local_yolo(camera_source, yolo_model, width, height, process_every_n, confidence_threshold,
+                                   video_placeholder, status_placeholder, stats_placeholder, detections_placeholder)
             else:
-                st.info("Press **START CAMERA** to begin real-time object detection.")
+                st.info("Press **START CAMERA** to begin object detection.")
         st.markdown('</div>', unsafe_allow_html=True)
     
-    # PAGE 2: AI IMAGE DESCRIPTION
+    # PAGE 2: AI IMAGE DESCRIPTION (unchanged)
     elif page == "🖼️ AI Image Description":
         st.markdown('<div class="section-card">', unsafe_allow_html=True)
         st.subheader("🖼️ AI-Powered Image Description")
@@ -749,6 +1106,10 @@ def main():
                 if st.button("🗑️ Clear All Data", use_container_width=True):
                     st.session_state.detection_data = []
                     st.session_state.yolo_stats = {'total_detections': 0, 'unique_classes': 0, 'class_counts': {}}
+                    if 'cloud_detection_history' in st.session_state:
+                        st.session_state.cloud_detection_history = []
+                        st.session_state.cloud_total_detections = 0
+                        st.session_state.cloud_class_counts = {}
                     st.rerun()
             st.markdown("#### 📊 Detailed Statistics by Class")
             class_stats = defaultdict(lambda: {'count': 0, 'total_conf': 0, 'total_dist': 0})
